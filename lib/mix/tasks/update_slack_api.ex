@@ -6,6 +6,7 @@ defmodule Mix.Tasks.UpdateSlackApi do
   use Mix.Task
   @dir System.tmp_dir()
 
+  @shortdoc "test"
   def run(_) do
     try do
       System.cmd("git", [
