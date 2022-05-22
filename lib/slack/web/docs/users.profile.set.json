@@ -1,36 +1,56 @@
 {
   "desc": "Set the profile information for a user.",
-
   "args": {
-    "user": {
-      "type": "user",
-      "required": false,
-      "example": "W1234567890",
-      "desc": "User to retrieve profile info for"
+    "token": {
+      "required": true,
+      "example": "xxxx-xxxxxxxxx-xxxx",
+      "desc": "Authentication token bearing required scopes."
     },
     "name": {
       "required": false,
       "example": "first_name",
-      "desc": "Name of a single key to set. Usable only if `profile` is not passed."
+      "desc": "Name of a single key to set. Usable only if profile is not passed."
+    },
+    "profile": {
+      "required": false,
+      "example": "{ first_name: \"John\", ... }",
+      "desc": "Collection of key:value pairs presented as a URL-encoded JSON hash. At most 50 fields may be set. Each field name is limited to 255 characters."
+    },
+    "user": {
+      "required": false,
+      "example": "W1234567890",
+      "desc": "ID of user to change. This argument may only be specified by team admins on paid teams."
     },
     "value": {
       "required": false,
       "example": "John",
-      "desc": "Value to set a single key to. Usable only if `profile` is not passed."
-    },
-    "profile": {
-      "required": false,
-      "example": "`{ first_name: \"John\", ... }`",
-      "desc": "Collection of key:value pairs presented as a URL-encoded JSON hash. At most 50 fields may be set. Each field name is limited to 255 characters."
+      "desc": "Value to set a single key to. Usable only if profile is not passed."
     }
   },
-
   "errors": {
     "reserved_name": "First or last name are reserved.",
     "invalid_profile": "Profile object passed in is not valid JSON (make sure it is URL encoded!).",
     "profile_set_failed": "Failed to set user profile.",
-    "not_admin": "Only admins can update the profile of another user. Some fields, like email may only be updated by an admin.",
+    "not_admin": "Only admins can update the profile of another user. Some fields, like `email` may only be updated by an admin.",
     "not_app_admin": "Only team owners and selected members can update the profile of a bot user.",
-    "cannot_update_admin_user": "Only a primary owner can update the profile of an admin."
+    "cannot_update_admin_user": "Only a primary owner can update the profile of an admin.",
+    "not_authed": "No authentication token provided.",
+    "invalid_auth": "Some aspect of authentication cannot be validated. Either the provided token is invalid or the request originates from an IP address disallowed from making the request.",
+    "account_inactive": "Authentication token is for a deleted user or workspace.",
+    "token_revoked": "Authentication token is for a deleted user or workspace or the app has been removed.",
+    "no_permission": "The workspace token used in this request does not have the permissions necessary to complete the request. Make sure your app is a member of the conversation it's attempting to post a message to.",
+    "org_login_required": "The workspace is undergoing an enterprise migration and will not be available until migration is complete.",
+    "ekm_access_denied": "Administrators have suspended the ability to post a message.",
+    "missing_scope": "The token used is not granted the specific scope permissions required to complete this request.",
+    "is_bot": "This method cannot be called by a bot user.",
+    "invalid_arguments": "The method was called with invalid arguments.",
+    "invalid_arg_name": "The method was passed an argument whose name falls outside the bounds of accepted or expected values. This includes very long names and names with non-alphanumeric characters other than `_`. If you get this error, it is typically an indication that you have made a _very_ malformed API call.",
+    "invalid_charset": "The method was called via a `POST` request, but the `charset` specified in the `Content-Type` header was invalid. Valid charset names are: `utf-8` `iso-8859-1`.",
+    "invalid_form_data": "The method was called via a `POST` request with `Content-Type` `application/x-www-form-urlencoded` or `multipart/form-data`, but the form data was either missing or syntactically invalid.",
+    "invalid_post_type": "The method was called via a `POST` request, but the specified `Content-Type` was invalid. Valid types are: `application/json` `application/x-www-form-urlencoded` `multipart/form-data` `text/plain`.",
+    "missing_post_type": "The method was called via a `POST` request and included a data payload, but the request did not include a `Content-Type` header.",
+    "team_added_to_org": "The workspace associated with your request is currently undergoing migration to an Enterprise Organization. Web API and other platform operations will be intermittently unavailable until the transition is complete.",
+    "request_timeout": "The method was called via a `POST` request, but the `POST` data was either missing or truncated.",
+    "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised."
   }
 }
