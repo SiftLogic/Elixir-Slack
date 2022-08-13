@@ -1,25 +1,15 @@
 {
-  "desc": "Sends a message to a channel.",
+  "desc": "Sends a message to a channel.\n\nThis method posts [a message](/docs/messages) to a public channel, private channel, or direct message/IM channel.\n\nPlease note that the `as_user` parameter _may not_ be used by [new Slack apps](/authentication/basics). Read more about [Authorship](#authorship) to understand how `as_user` works for classic Slack apps.\n\n**Using `text` with `blocks` or `attachments`**\n\nThe usage of the `text` field changes depending on whether you're using `blocks`. If you are using `blocks`, this is used as a fallback string to display in notifications. If you aren't, this is the main body text of the message. It can be formatted as plain text, or with `mrkdwn`.\n\nThe `text` field is not enforced as required when using `blocks` or `attachments`. However, we highly recommended that you include `text` to provide a fallback when using `blocks`, as described above.\n\n### JSON POST support\n\nAs of October 2017, it's now possible to send a well-formatted `application/json` POST body to `chat.postMessage` and other [Web API](/web) write methods. No need to carefully URL-encode your JSON `attachments` and present all other fields as URL encoded key/value pairs; just send JSON instead.\n\nLearn more about this support in the [Web API](/web) docs or [this changelog](/changelog/2017-10-keeping-up-with-the-jsons).\n\nThe response includes the \"timestamp ID\" (`ts`) and the channel-like thing where the message was posted. It also includes the complete message object, as parsed by our servers. This may differ from the provided arguments as our servers sanitize links, attachments, and other properties. Your message may mutate.\n\n## Formatting messages \n\nMessages are formatted as described in the [formatting spec](/docs/message-formatting). You can specify values for `parse` and `link_names` to change formatting behavior.\n\nWhen POSTing with `application/x-www-form-urlencoded` data, the optional `attachments` argument should contain a JSON-encoded array of attachments. Make it easy on yourself and send your entire messages as `application/json` instead.\n\nFor more information, see the [attachments spec](/docs/message-attachments). If you're using a [Slack app](/slack-apps), you can also use this method to attach [message buttons](/docs/message-buttons).\n\nBy default links to media are unfurled, but links to text content are not. Links found in [`blocks`](/reference/block-kit/blocks) will also be unfurled by default.\n\nIf you want to suppress link unfurls in messages containing [blocks](/reference/block-kit/blocks), set `unfurl_links` and `unfurl_media` to false. For more information on the differences and how to control this, see the [the unfurling documentation](/docs/message-attachments#unfurling).\n\nFor best results, limit the number of characters in the `text` field to 4,000 characters. Ideally, messages should be short and human-readable. Slack will [truncate messages](/changelog/2018-truncating-really-long-messages) containing more than 40,000 characters.\n\nIf you need to post longer messages, please consider [uploading a snippet instead](/methods/files.upload).\n\nConsider reviewing our [message guidelines](/docs/message-guidelines), especially if you're using attachments or message buttons.\n\n## Threads and replies\n\nProvide a `thread_ts` value for the posted message to act as a reply to a parent message. Sparingly set `reply_broadcast` to `true` if your reply is important enough for everyone in the channel to receive.\n\nSee [message threading](/docs/message-threading) for a more in depth look at message threading.\n\n## Channels\n\nYou **must** specify a public channel, private channel, or an IM channel with the `channel` argument. Each one behaves slightly differently based on the authenticated user's permissions and additional arguments:\n\n#### Post to a public channel\n\nPass the channel's ID (`C024BE91L`) to the `channel` parameter and the message will be posted to that channel. The channel's ID can be retrieved through the [conversations.list](/methods/conversations.list) API method.\n\n#### Post to a multi-person direct message\n\nAs long as the authenticated user is a member of the multi-person direct message (AKA \"private group\" or MPIM), you can pass the group's ID (`G012AC86C`), and the message will be posted to that group. The private group's ID can be retrieved through the [conversations.list](/methods/conversations.list) API method.\n\n#### Post to a direct message channel\n\nPosting to direct messages (also known as DMs or IMs) can be a little more complex, depending on what you actually are meaning to accomplish.\n\nIf you simply want your app's bot user to start a 1:1 conversation with another user in a workspace, provide the user's user ID as the `channel` value and a direct message conversation will be opened, if it hasn't already. Resultant messages and associated direct message objects will have a direct message ID you can use from that point forward, if you'd rather.\n\nBot users **can't** post to a direct message conversation between two users using `chat.postMessage`. If your app was involved in the conversation, then it would be a multi-person direct message instead. Apps can post to direct message conversations between users when a [shortcut](/interactivity/shortcuts) or [slash command](/slash-commands) belonging to that app is used in the conversation.\n\nYou might receive a `channel_not_found` error if your app doesn't have permission to enter into a DM with the intended user.\n\n<ts-icon class=\"ts_icon_info_circle\"></ts-icon> Passing a \"username\" as a `channel` value is deprecated, along with [the whole concept of _usernames_ on Slack](/changelog/2017-09-the-one-about-usernames). Please _always_ use channel-like IDs instead to make sure your message gets to where it's going.\n\n## Begin a conversation in a user's App Home \n\nStart a conversation with users in your [App Home](/reference/app-home).\n\nWith the `chat:write` scope enabled, call `chat.postMessage` and pass a user's ID (`U0G9QF9C6`) as the value of `channel` to post to that user's App Home channel. You can use their direct message channel ID (as found with `im.open`, for instance) instead.\n\n## Rate limiting\n\n`chat.postMessage` has special [rate limiting](/docs/rate-limits) conditions. It will generally allow an app to post 1 message per second to a specific channel. There are limits governing your app's relationship with the entire workspace above that, limiting posting to several hundred messages per minute. Generous burst behavior is also granted.\n\n## Channel membership \n\n<ts-icon class=\"ts_icon_info_circle\"></ts-icon> New Slack apps do _not_ begin life with the ability to post in all public channels.\n\nFor your new Slack app to gain the ability to post in all public channels, request the [`chat:write.public`](/scopes/chat:write.public) scope.\n\n* * *\n\n## Sending messages as other entities \n\nApps can publish messages that appear to have been created by a user in the conversation. The message will be attributed to the user and show their profile photo beside it.\n\nThis is a powerful ability and must only be used when the user themselves gives permission to do so. For this reason, this ability is only available when an app has requested and been granted an additional scope — [`chat:write.customize`](/scopes/chat:write.customize).\n\nYour app should only use this feature in response to an inciting user action. It should never be unexpected or surprising to a user that a message was posted on their behalf, and it should be heavily signposted in advance.\n\nWith all that in mind, the act of authoring a message as a user is relatively simple. With the aforementioned scope, you'll be able to make calls to [`chat.postMessage`](/methods/chat.postMessage) and provide:\n\n- `username` to specify the username for the published message.\n- `icon_url` to specify a URL to an image to use as the profile photo alongside the message.\n- `icon_emoji` to specify an emoji (using colon shortcodes, eg. `:white_check_mark:`) to use as the profile photo alongside the message.\n\nThis feature works differently for classic Slack apps, [see below for more details](#legacy_authorship).\n\n* * *\n\n## Legacy concerns \n\nInformation in the section below applies only to classic Slack apps.\n\n### Legacy authorship \n\nClassic Slack apps using the umbrella `bot` scope can't request additional scopes to adjust message authorship.\n\nFor classic Slack apps, the best way to control the authorship of a message is to be explicit with the `as_user` parameter.\n\nIf you don't use the `as_user` parameter, `chat.postMessage` will guess the most appropriate `as_user` interpretation based on the kind of token you're using.\n\nIf `as_user` is not provided at all, then the value is inferred, based on the scopes granted to the caller: If the caller _could_ post with `as_user` passed as `false`, then that is how the method behaves; otherwise, the method behaves as if `as_user` were passed as `true`.\n\n#### When `as_user` is false\n\nWhen the `as_user` parameter is set to `false`, messages are posted as \"[`bot_messages`](/events/message/bot_message)\", with message authorship attributed to the user name and icons associated with the [Slack App](/slack-apps).\n\nWith `as_user` set to `false`, you may also provide a `username` to explicitly specify the bot user's identity for this message, along with `icon_url` or `icon_emoji`.\n\n#### Effect on identity\n\nToken types provide varying default identity values for `username`, `icon_url`, and `icon_emoji`.\n\n- [test tokens](/docs/oauth-test-tokens)\n  - inherits the icon and username of the token owner\n- [Slack App user token](/slack-apps) with [`chat:write:user`](/docs/oauth-scopes)\n  - inherits icon and username of the token owner\n- [Slack App bot user token](/bot-users#share_your_bot_user_as_a_slack_app)\n  - inherits Slack App's icon and app's bot username\n\n#### Legacy identity rules in DMs\n\nIf you're using `icon_url`, `icon_emoji`, or `username` with `chat.postMessage` and a direct message, some special rules apply to make sure the receiver is crystal clear on just who is sending the message:\n\n- If `as_user` is false:\n  - Pass the DM channel's ID (`D023BB3L2`) as the value of `channel` to post to that DM channel _as the app, bot, or user associated with the token_. You can change the icon and username that go with the message using the `icon_url` and `username` parameters. The IM channel's ID can be retrieved through the [conversations.list](/methods/conversations.list) API method.\n- If `as_user` is true:\n  - Pass the DM channel's ID (`D023BB3L2`) or a user's ID (`U0G9QF9C6`) as the value of `channel` to post to that DM channel _as the app, bot, or user associated with the token_. The IM channel's ID can be retrieved through the [conversations.list](/methods/conversations.list) API method. When `as_user` is true, the caller may _not_ manipulate the icon and username on the message.",
   "args": {
     "token": {
       "required": true,
       "example": "xxxx-xxxxxxxxx-xxxx",
-      "desc": "Authentication token bearing required scopes."
+      "desc": "Authentication token bearing required scopes. Tokens should be passed as an HTTP Authorization header or alternatively, as a POST parameter."
     },
     "channel": {
       "required": true,
       "example": "C1234567890",
-      "desc": "Channel, private group, or IM channel to send message to. Can be an encoded ID, or a name. See below for more details."
-    },
-    "text": {
-      "required": true,
-      "example": "Hello world",
-      "desc": "How this field works and whether it is required depends on other fields you use in your API call. See below for more detail."
-    },
-    "as_user": {
-      "required": false,
-      "example": "true",
-      "desc": "Pass true to post the message as the authed user, instead of as a bot. Defaults to false. See authorship below. This argument may not be used with newer bot tokens."
+      "desc": "Channel, private group, or IM channel to send message to. Can be an encoded ID, or a name. See [below](#channels) for more details."
     },
     "attachments": {
       "required": false,
@@ -31,40 +21,55 @@
       "example": "[{\"type\": \"section\", \"text\": {\"type\": \"plain_text\", \"text\": \"Hello world\"}}]",
       "desc": "A JSON-based array of structured blocks, presented as a URL-encoded string."
     },
+    "text": {
+      "required": false,
+      "example": "Hello world",
+      "desc": "The formatted text of the message to be published. If `blocks` are included, this will become the fallback text used in notifications."
+    },
+    "as_user": {
+      "required": false,
+      "example": "true",
+      "desc": "Pass true to post the message as the authed user, instead of as a bot. Defaults to false. See [authorship](#authorship) below."
+    },
     "icon_emoji": {
       "required": false,
       "example": ":chart_with_upwards_trend:",
-      "desc": "Emoji to use as the icon for this message. Overrides icon_url. Must be used in conjunction with as_user set to false, otherwise ignored. See authorship below. This argument may not be used with newer bot tokens."
+      "desc": "Emoji to use as the icon for this message. Overrides `icon_url`. Must be used in conjunction with `as_user` set to `false`, otherwise ignored. See [authorship](#authorship) below."
     },
     "icon_url": {
       "required": false,
       "example": "http://lorempixel.com/48/48",
-      "desc": "URL to an image to use as the icon for this message. Must be used in conjunction with as_user set to false, otherwise ignored. See authorship below. This argument may not be used with newer bot tokens."
+      "desc": "URL to an image to use as the icon for this message. Must be used in conjunction with `as_user` set to false, otherwise ignored. See [authorship](#authorship) below."
     },
     "link_names": {
       "required": false,
       "example": "true",
       "desc": "Find and link channel names and usernames."
     },
+    "metadata": {
+      "required": false,
+      "example": "{\"event_type\": \"task_created\", \"event_payload\": { \"id\": \"11223\", \"title\": \"Redesign Homepage\"}}",
+      "desc": "JSON object with event\\_type and event\\_payload fields, presented as a URL-encoded string. Metadata you post to Slack is accessible to any app or user who is a member of that workspace."
+    },
     "mrkdwn": {
       "required": false,
-      "example": "false",
-      "desc": "Disable Slack markup parsing by setting to false. Enabled by default."
+      "example": "true",
+      "desc": "Disable Slack markup parsing by setting to `false`. Enabled by default."
     },
     "parse": {
       "required": false,
       "example": "full",
-      "desc": "Change how messages are treated. Defaults to none. See below."
+      "desc": "Change how messages are treated. Defaults to `none`. See [below](#formatting)."
     },
     "reply_broadcast": {
       "required": false,
       "example": "true",
-      "desc": "Used in conjunction with thread_ts and indicates whether reply should be made visible to everyone in the channel or conversation. Defaults to false."
+      "desc": "Used in conjunction with `thread_ts` and indicates whether reply should be made visible to everyone in the channel or conversation. Defaults to `false`."
     },
     "thread_ts": {
       "required": false,
-      "example": "1234567890.123456",
-      "desc": "Provide another message's ts value to make this message a reply. Avoid using a reply's ts value; use its parent instead."
+      "example": "",
+      "desc": "Provide another message's `ts` value to make this message a reply. Avoid using a reply's `ts` value; use its parent instead."
     },
     "unfurl_links": {
       "required": false,
@@ -79,11 +84,39 @@
     "username": {
       "required": false,
       "example": "My Bot",
-      "desc": "Set your bot's user name. Must be used in conjunction with as_user set to false, otherwise ignored. See authorship below."
+      "desc": "Set your bot's user name. Must be used in conjunction with `as_user` set to false, otherwise ignored. See [authorship](#authorship) below."
+    }
+  },
+  "response": {
+    "success": {
+      "ok": true,
+      "channel": "C1H9RESGL",
+      "ts": "1503435956.000247",
+      "message": {
+        "text": "Here's a message for you",
+        "username": "ecto1",
+        "bot_id": "B19LU7CSY",
+        "attachments": [
+          {
+            "text": "This is an attachment",
+            "id": 1,
+            "fallback": "This is an attachment's fallback"
+          }
+        ],
+        "type": "message",
+        "subtype": "bot_message",
+        "ts": "1503435956.000247"
+      }
+    },
+    "error": {
+      "ok": false,
+      "error": "too_many_attachments"
     }
   },
   "errors": {
     "channel_not_found": "Value passed for `channel` was invalid.",
+    "duplicate_channel_not_found": "Channel associated with `client_msg_id` was invalid.",
+    "duplicate_message_not_found": "No duplicate message exists associated with `client_msg_id`.",
     "not_in_channel": "Cannot post user messages to a channel they are not in.",
     "is_archived": "Channel has been archived.",
     "msg_too_long": "Message text is too long",
@@ -92,25 +125,48 @@
     "restricted_action_read_only_channel": "Cannot post any message into a read-only channel.",
     "restricted_action_thread_only_channel": "Cannot post top-level messages into a thread-only channel.",
     "restricted_action_non_threadable_channel": "Cannot post thread replies into a non\\_threadable channel.",
+    "restricted_action_thread_locked": "Cannot post replies to a thread that has been locked by admins.",
     "too_many_attachments": "Too many attachments were provided with this message. A maximum of 100 attachments are allowed on a message.",
+    "too_many_contact_cards": "Too many contact\\_cards were provided with this message. A maximum of 10 contact cards are allowed on a message.",
     "rate_limited": "Application has posted too many messages, [read the Rate Limit documentation](/docs/rate-limits) for more information",
     "as_user_not_supported": "The `as_user` parameter does not function with workspace apps.",
     "ekm_access_denied": "Administrators have suspended the ability to post a message.",
+    "slack_connect_file_link_sharing_blocked": "Admin has disabled Slack File sharing in all Slack Connect communications",
+    "invalid_blocks": "Blocks submitted with this message are not valid",
+    "invalid_blocks_format": "The `blocks` is not a valid JSON object or doesn't match the Block Kit syntax.",
+    "messages_tab_disabled": "Messages tab for the app is disabled.",
+    "metadata_too_large": "Metadata exceeds size limit",
+    "team_access_not_granted": "The token used is not granted the specific workspace access required to complete this request.",
+    "invalid_metadata_format": "Invalid metadata format provided",
+    "invalid_metadata_schema": "Invalid metadata schema provided",
+    "metadata_must_be_sent_from_app": "Message metadata can only be posted or updated using an app token",
     "not_authed": "No authentication token provided.",
     "invalid_auth": "Some aspect of authentication cannot be validated. Either the provided token is invalid or the request originates from an IP address disallowed from making the request.",
-    "account_inactive": "Authentication token is for a deleted user or workspace.",
-    "token_revoked": "Authentication token is for a deleted user or workspace or the app has been removed.",
+    "access_denied": "Access to a resource specified in the request is denied.",
+    "account_inactive": "Authentication token is for a deleted user or workspace when using a `bot` token.",
+    "token_revoked": "Authentication token is for a deleted user or workspace or the app has been removed when using a `user` token.",
+    "token_expired": "Authentication token has expired",
     "no_permission": "The workspace token used in this request does not have the permissions necessary to complete the request. Make sure your app is a member of the conversation it's attempting to post a message to.",
     "org_login_required": "The workspace is undergoing an enterprise migration and will not be available until migration is complete.",
     "missing_scope": "The token used is not granted the specific scope permissions required to complete this request.",
-    "invalid_arguments": "The method was called with invalid arguments.",
+    "not_allowed_token_type": "The token type used in this request is not allowed.",
+    "method_deprecated": "The method has been deprecated.",
+    "deprecated_endpoint": "The endpoint has been deprecated.",
+    "two_factor_setup_required": "Two factor setup is required.",
+    "enterprise_is_restricted": "The method cannot be called from an Enterprise.",
+    "invalid_arguments": "The method was either called with invalid arguments or some detail about the arguments passed are invalid, which is more likely when using complex arguments like blocks or attachments.",
     "invalid_arg_name": "The method was passed an argument whose name falls outside the bounds of accepted or expected values. This includes very long names and names with non-alphanumeric characters other than `_`. If you get this error, it is typically an indication that you have made a _very_ malformed API call.",
+    "invalid_array_arg": "The method was passed an array as an argument. Please only input valid strings.",
     "invalid_charset": "The method was called via a `POST` request, but the `charset` specified in the `Content-Type` header was invalid. Valid charset names are: `utf-8` `iso-8859-1`.",
     "invalid_form_data": "The method was called via a `POST` request with `Content-Type` `application/x-www-form-urlencoded` or `multipart/form-data`, but the form data was either missing or syntactically invalid.",
     "invalid_post_type": "The method was called via a `POST` request, but the specified `Content-Type` was invalid. Valid types are: `application/json` `application/x-www-form-urlencoded` `multipart/form-data` `text/plain`.",
     "missing_post_type": "The method was called via a `POST` request and included a data payload, but the request did not include a `Content-Type` header.",
     "team_added_to_org": "The workspace associated with your request is currently undergoing migration to an Enterprise Organization. Web API and other platform operations will be intermittently unavailable until the transition is complete.",
+    "ratelimited": "The request has been ratelimited. Refer to the `Retry-After` header for when to retry the request.",
+    "accesslimited": "Access to this method is limited on the current network",
     "request_timeout": "The method was called via a `POST` request, but the `POST` data was either missing or truncated.",
-    "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised."
+    "service_unavailable": "The service is temporarily unavailable",
+    "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised.",
+    "internal_error": "The server could not complete your operation(s) without encountering an error, likely due to a transient issue on our end. It's possible some aspect of the operation succeeded before the error was raised."
   }
 }

@@ -1,20 +1,20 @@
 {
-  "desc": "Exchanges a temporary OAuth verifier code for an access token.",
+  "desc": "Exchanges a temporary OAuth verifier code for an access token.\n\n**This is a legacy method only used by classic Slack apps.** [Use `oauth.v2.access`](/methods/oauth.v2.access) for [new Slack apps](/authentication/basics).\n\nThis method allows you to exchange a temporary OAuth `code` for an API access token.\n\nThis is the third step of the [OAuth authentication flow](/authentication).\n\nWe strongly recommend supplying the Client ID and Client Secret using the HTTP Basic authentication scheme, as discussed [in RFC 6749](https://tools.ietf.org/html/rfc6749#section-2.3.1).\n\nIf at all possible, avoid sending `client_id` and `client_secret` as parameters in your request.\n\n**Keep your tokens secure**. Do not share tokens with users or anyone else.\n\nWhen used with a legacy workspace app, this method's response differs significantly.\n\nA potential gotcha: while `redirect_uri` is optional, it is _required_ if your app passed it as a parameter to `oauth/authorization` in the first step of the OAuth flow.\n\nThe response schema for this step of OAuth differs depending on [the scopes](/scopes) requested and the type of application used. When asking for the `bot` scope, you'll receive the token separately from the user token.\n\n`enterprise_id` will be populated if the installing team is part of an enterprise. Otherwise, it will be `null`.",
   "args": {
     "client_id": {
-      "required": true,
+      "required": false,
       "example": "4b39e9-752c4",
       "desc": "Issued when you created your application."
     },
     "client_secret": {
-      "required": true,
+      "required": false,
       "example": "33fea0113f5b1",
       "desc": "Issued when you created your application."
     },
     "code": {
-      "required": true,
+      "required": false,
       "example": "ccdaa72ad",
-      "desc": "The code param returned via the OAuth callback."
+      "desc": "The `code` param returned via the OAuth callback."
     },
     "redirect_uri": {
       "required": false,
@@ -23,8 +23,21 @@
     },
     "single_channel": {
       "required": false,
-      "example": "true",
-      "desc": "Request the user to add your app only to a single channel. Only valid with a legacy workspace app."
+      "example": "false",
+      "desc": "Request the user to add your app only to a single channel. Only valid with a [legacy workspace app](https://api.slack.com/legacy-workspace-apps)."
+    }
+  },
+  "response": {
+    "success": {
+      "access_token": "xoxp-XXXXXXXX-XXXXXXXX-XXXXX",
+      "scope": "groups:write",
+      "team_name": "Wyld Stallyns LLC",
+      "team_id": "TXXXXXXXXX",
+      "enterprise_id": null
+    },
+    "error": {
+      "ok": false,
+      "error": "invalid_client_id"
     }
   },
   "errors": {
@@ -34,14 +47,21 @@
     "bad_redirect_uri": "Value passed for `redirect_uri` did not match the `redirect_uri` in the original request.",
     "oauth_authorization_url_mismatch": "The OAuth flow was initiated on an incorrect version of the authorization url. The flow must be initiated via /oauth/authorize.",
     "code_already_used": "Value passed for `code` was already exchanged.",
-    "invalid_arguments": "The method was called with invalid arguments.",
+    "missing_resource": "Missing permission resource.",
+    "internal_error": "The server could not complete your operation(s) without encountering an error, likely due to a transient issue on our end. It's possible some aspect of the operation succeeded before the error was raised.",
+    "ratelimited": "The request has been ratelimited. Refer to the `Retry-After` header for when to retry the request.",
+    "invalid_token": "Invalid refresh token.",
+    "invalid_arguments": "The method was either called with invalid arguments or some detail about the arguments passed are invalid, which is more likely when using complex arguments like blocks or attachments.",
     "invalid_arg_name": "The method was passed an argument whose name falls outside the bounds of accepted or expected values. This includes very long names and names with non-alphanumeric characters other than `_`. If you get this error, it is typically an indication that you have made a _very_ malformed API call.",
+    "invalid_array_arg": "The method was passed an array as an argument. Please only input valid strings.",
     "invalid_charset": "The method was called via a `POST` request, but the `charset` specified in the `Content-Type` header was invalid. Valid charset names are: `utf-8` `iso-8859-1`.",
     "invalid_form_data": "The method was called via a `POST` request with `Content-Type` `application/x-www-form-urlencoded` or `multipart/form-data`, but the form data was either missing or syntactically invalid.",
     "invalid_post_type": "The method was called via a `POST` request, but the specified `Content-Type` was invalid. Valid types are: `application/json` `application/x-www-form-urlencoded` `multipart/form-data` `text/plain`.",
     "missing_post_type": "The method was called via a `POST` request and included a data payload, but the request did not include a `Content-Type` header.",
     "team_added_to_org": "The workspace associated with your request is currently undergoing migration to an Enterprise Organization. Web API and other platform operations will be intermittently unavailable until the transition is complete.",
+    "accesslimited": "Access to this method is limited on the current network",
     "request_timeout": "The method was called via a `POST` request, but the `POST` data was either missing or truncated.",
+    "service_unavailable": "The service is temporarily unavailable",
     "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised."
   }
 }

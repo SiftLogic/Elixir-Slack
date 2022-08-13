@@ -1,40 +1,86 @@
 {
-  "desc": "Gets information about a private channel.",
+  "desc": "Retrieve information about a conversation.\n\nThis [Conversations API](/docs/conversations-api) method returns information about a workspace [conversation](/types/conversation).\n\nReturns a [conversation object](/types/conversation), which could be a public channel, private channel, direct message, multi-person direct message, depending completely on the `channel` ID and the permissions granted to your token.\n\nSome fields in the response, like `unread_count` and `unread_count_display`, are included for DM conversations only.",
   "args": {
     "token": {
       "required": true,
       "example": "xxxx-xxxxxxxxx-xxxx",
-      "desc": "Authentication token bearing required scopes."
+      "desc": "Authentication token bearing required scopes. Tokens should be passed as an HTTP Authorization header or alternatively, as a POST parameter."
     },
     "channel": {
       "required": true,
-      "example": "G1234567890",
-      "desc": "Private channel to get info on"
+      "example": "C1234567890",
+      "desc": "Conversation ID to learn more about"
     },
     "include_locale": {
       "required": false,
       "example": "true",
-      "desc": "Set this to true to receive the locale for this group. Defaults to false"
+      "desc": "Set this to `true` to receive the locale for this conversation. Defaults to `false`"
+    },
+    "include_num_members": {
+      "required": false,
+      "example": "false",
+      "desc": "Set to `true` to include the member count for the specified conversation. Defaults to `false`"
+    }
+  },
+  "response": {
+    "success": {
+      "ok": true,
+      "channel": {
+        "id": "C012AB3CD",
+        "created": 1507235627,
+        "is_im": true,
+        "is_org_shared": false,
+        "user": "U27FFLNF4",
+        "last_read": "1513718191.000038",
+        "latest": {
+          "type": "message",
+          "user": "U5R3PALPN",
+          "text": "Psssst!",
+          "ts": "1513718191.000038"
+        },
+        "unread_count": 0,
+        "unread_count_display": 0,
+        "is_open": true,
+        "locale": "en-US",
+        "priority": 0.043016851216706
+      }
+    },
+    "error": {
+      "ok": false,
+      "error": "channel_not_found"
     }
   },
   "errors": {
+    "missing_scope": "The token used is not granted the specific scope permissions required to complete this request.",
     "channel_not_found": "Value passed for `channel` was invalid.",
+    "team_access_not_granted": "The token used is not granted the specific workspace access required to complete this request.",
     "not_authed": "No authentication token provided.",
     "invalid_auth": "Some aspect of authentication cannot be validated. Either the provided token is invalid or the request originates from an IP address disallowed from making the request.",
-    "account_inactive": "Authentication token is for a deleted user or workspace.",
-    "token_revoked": "Authentication token is for a deleted user or workspace or the app has been removed.",
+    "access_denied": "Access to a resource specified in the request is denied.",
+    "account_inactive": "Authentication token is for a deleted user or workspace when using a `bot` token.",
+    "token_revoked": "Authentication token is for a deleted user or workspace or the app has been removed when using a `user` token.",
+    "token_expired": "Authentication token has expired",
     "no_permission": "The workspace token used in this request does not have the permissions necessary to complete the request. Make sure your app is a member of the conversation it's attempting to post a message to.",
     "org_login_required": "The workspace is undergoing an enterprise migration and will not be available until migration is complete.",
     "ekm_access_denied": "Administrators have suspended the ability to post a message.",
-    "missing_scope": "The token used is not granted the specific scope permissions required to complete this request.",
-    "invalid_arguments": "The method was called with invalid arguments.",
+    "not_allowed_token_type": "The token type used in this request is not allowed.",
+    "method_deprecated": "The method has been deprecated.",
+    "deprecated_endpoint": "The endpoint has been deprecated.",
+    "two_factor_setup_required": "Two factor setup is required.",
+    "enterprise_is_restricted": "The method cannot be called from an Enterprise.",
+    "invalid_arguments": "The method was either called with invalid arguments or some detail about the arguments passed are invalid, which is more likely when using complex arguments like blocks or attachments.",
     "invalid_arg_name": "The method was passed an argument whose name falls outside the bounds of accepted or expected values. This includes very long names and names with non-alphanumeric characters other than `_`. If you get this error, it is typically an indication that you have made a _very_ malformed API call.",
+    "invalid_array_arg": "The method was passed an array as an argument. Please only input valid strings.",
     "invalid_charset": "The method was called via a `POST` request, but the `charset` specified in the `Content-Type` header was invalid. Valid charset names are: `utf-8` `iso-8859-1`.",
     "invalid_form_data": "The method was called via a `POST` request with `Content-Type` `application/x-www-form-urlencoded` or `multipart/form-data`, but the form data was either missing or syntactically invalid.",
     "invalid_post_type": "The method was called via a `POST` request, but the specified `Content-Type` was invalid. Valid types are: `application/json` `application/x-www-form-urlencoded` `multipart/form-data` `text/plain`.",
     "missing_post_type": "The method was called via a `POST` request and included a data payload, but the request did not include a `Content-Type` header.",
     "team_added_to_org": "The workspace associated with your request is currently undergoing migration to an Enterprise Organization. Web API and other platform operations will be intermittently unavailable until the transition is complete.",
+    "ratelimited": "The request has been ratelimited. Refer to the `Retry-After` header for when to retry the request.",
+    "accesslimited": "Access to this method is limited on the current network",
     "request_timeout": "The method was called via a `POST` request, but the `POST` data was either missing or truncated.",
-    "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised."
+    "service_unavailable": "The service is temporarily unavailable",
+    "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised.",
+    "internal_error": "The server could not complete your operation(s) without encountering an error, likely due to a transient issue on our end. It's possible some aspect of the operation succeeded before the error was raised."
   }
 }

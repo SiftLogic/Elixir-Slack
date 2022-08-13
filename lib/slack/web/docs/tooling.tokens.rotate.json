@@ -1,0 +1,43 @@
+{
+  "desc": "Exchanges a refresh token for a new app configuration token.\n\n**App Manifest API beta**  \nThis API is in beta, and is subject to change without the usual notice period for changes.\n\n**Keep your tokens secure**  \nApp configuration access and refresh tokens are unique to _you_. Do not share them with anyone.\n\n## Rotating configuration tokens \n\nEach app configuration token will expire 12 hours after it has been generated. In order to continually rotate your config tokens, you are also provided with a **refresh token**.\n\nIt's strongly suggested that you refresh your token before it expires, rather than waiting for it to expire and checking for an error from the Slack API.\n\nIn order to refresh config tokens, make a call to [`tooling.tokens.rotate`](/methods/tooling.tokens.rotate), using the refresh token in the `refresh_token` argument. In response you'll receive something like this:\n\n```\n{\n\t\"ok\": true,\n\t\"token\": \"xoxe.xoxp-...\",\n\t\"refresh_token\": \"xoxe-...\",\n\t\"team_id\": \"...\",\n\t\"user_id\": \"...\",\n\t\"iat\": 1633095660,\n\t\"exp\": 1633138860\n}\n```\n\nThe `token` field contains your new config access token, which you can then store and use for Manifest API calls. The `refresh_token` field contains a _new_ refresh token.\n\nThe remainder of the response above contains fields which identify the source workspace and user of each token, as well as timestamps which indicate when the token was issued and when it will expire.\n\nTo learn how to use app configuration tokens, read [our guide to the App Manifest APIs](/reference/manifests#manifest_apis).",
+  "args": {
+    "refresh_token": {
+      "required": true,
+      "example": "xoxe-1-abcdefg",
+      "desc": "The `xoxe` refresh token that was issued along with the old app configuration token."
+    }
+  },
+  "response": {
+    "success": {
+      "ok": true,
+      "token": "xoxe.xoxp-...",
+      "refresh_token": "xoxe-...",
+      "team_id": "...",
+      "user_id": "...",
+      "iat": 1633095660,
+      "exp": 1633138860
+    },
+    "error": {
+      "ok": false,
+      "error": "invalid_refresh_token"
+    }
+  },
+  "errors": {
+    "invalid_refresh_token": "The given refresh token is invalid.",
+    "internal_error": "The server could not complete your operation(s) without encountering an error, likely due to a transient issue on our end. It's possible some aspect of the operation succeeded before the error was raised.",
+    "unknown_error": "Temporary error for dev only restriction",
+    "invalid_arguments": "The method was either called with invalid arguments or some detail about the arguments passed are invalid, which is more likely when using complex arguments like blocks or attachments.",
+    "invalid_arg_name": "The method was passed an argument whose name falls outside the bounds of accepted or expected values. This includes very long names and names with non-alphanumeric characters other than `_`. If you get this error, it is typically an indication that you have made a _very_ malformed API call.",
+    "invalid_array_arg": "The method was passed an array as an argument. Please only input valid strings.",
+    "invalid_charset": "The method was called via a `POST` request, but the `charset` specified in the `Content-Type` header was invalid. Valid charset names are: `utf-8` `iso-8859-1`.",
+    "invalid_form_data": "The method was called via a `POST` request with `Content-Type` `application/x-www-form-urlencoded` or `multipart/form-data`, but the form data was either missing or syntactically invalid.",
+    "invalid_post_type": "The method was called via a `POST` request, but the specified `Content-Type` was invalid. Valid types are: `application/json` `application/x-www-form-urlencoded` `multipart/form-data` `text/plain`.",
+    "missing_post_type": "The method was called via a `POST` request and included a data payload, but the request did not include a `Content-Type` header.",
+    "team_added_to_org": "The workspace associated with your request is currently undergoing migration to an Enterprise Organization. Web API and other platform operations will be intermittently unavailable until the transition is complete.",
+    "ratelimited": "The request has been ratelimited. Refer to the `Retry-After` header for when to retry the request.",
+    "accesslimited": "Access to this method is limited on the current network",
+    "request_timeout": "The method was called via a `POST` request, but the `POST` data was either missing or truncated.",
+    "service_unavailable": "The service is temporarily unavailable",
+    "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised."
+  }
+}

@@ -1,15 +1,20 @@
 {
-  "desc": "Opens or resumes a direct message or multi-person direct message.",
+  "desc": "Opens or resumes a direct message or multi-person direct message.\n\nThis [Conversations API](/docs/conversations-api) method opens a multi-person direct message or just a 1:1 direct message.\n\nUse [`conversations.create`](/methods/conversations.create) for public or private channels.\n\nProvide 1 to 8 user IDs in the `users` parameter to open or resume a conversation. Providing only 1 ID will create a direct message. Providing more will create an `mpim`. Don’t include the ID of the user you’re calling `conversations.open` on behalf of – we do that for you.\n\nIf there are no conversations already in progress including that exact set of members, a new multi-person direct message conversation begins.\n\nSubsequent calls to `conversations.open` with the same set of users will return the already existing conversation.\n\nResponse structure is altered by providing `return_im` parameter. When set to `false`, the default, just a conversation's ID is returned. When set to `true`, the entire conversation object is returned.",
   "args": {
     "token": {
       "required": true,
       "example": "xxxx-xxxxxxxxx-xxxx",
-      "desc": "Authentication token bearing required scopes."
+      "desc": "Authentication token bearing required scopes. Tokens should be passed as an HTTP Authorization header or alternatively, as a POST parameter."
     },
     "channel": {
       "required": false,
       "example": "G1234567890",
-      "desc": "Resume a conversation by supplying an im or mpim's ID. Or provide the users field instead."
+      "desc": "Resume a conversation by supplying an `im` or `mpim`'s ID. Or provide the `users` field instead."
+    },
+    "prevent_creation": {
+      "required": false,
+      "example": "",
+      "desc": "Do not create a direct message or multi-person direct message. This is used to see if there is an existing dm or mpdm."
     },
     "return_im": {
       "required": false,
@@ -19,7 +24,19 @@
     "users": {
       "required": false,
       "example": "W1234567890,U2345678901,U3456789012",
-      "desc": "Comma separated lists of users. If only one user is included, this creates a 1:1 DM.  The ordering of the users is preserved whenever a multi-person direct message is returned. Supply a channel when not supplying users."
+      "desc": "Comma separated lists of users. If only one user is included, this creates a 1:1 DM. The ordering of the users is preserved whenever a multi-person direct message is returned. Supply a `channel` when not supplying `users`."
+    }
+  },
+  "response": {
+    "success": {
+      "ok": true,
+      "channel": {
+        "id": "D069C7QFK"
+      }
+    },
+    "error": {
+      "ok": false,
+      "error": "channel_not_found"
     }
   },
   "errors": {
@@ -31,22 +48,36 @@
     "not_enough_users": "Needs at least 2 users to open",
     "too_many_users": "Needs at most 8 users to open",
     "method_not_supported_for_channel_type": "This type of conversation cannot be used with this method.",
+    "invalid_user_combination": "To message people from multiple organizations, those organizations must be in at least one channel together.",
     "missing_scope": "The token used is not granted the specific scope permissions required to complete this request.",
+    "team_access_not_granted": "The token used is not granted the specific workspace access required to complete this request.",
     "not_authed": "No authentication token provided.",
     "invalid_auth": "Some aspect of authentication cannot be validated. Either the provided token is invalid or the request originates from an IP address disallowed from making the request.",
-    "account_inactive": "Authentication token is for a deleted user or workspace.",
-    "token_revoked": "Authentication token is for a deleted user or workspace or the app has been removed.",
+    "access_denied": "Access to a resource specified in the request is denied.",
+    "account_inactive": "Authentication token is for a deleted user or workspace when using a `bot` token.",
+    "token_revoked": "Authentication token is for a deleted user or workspace or the app has been removed when using a `user` token.",
+    "token_expired": "Authentication token has expired",
     "no_permission": "The workspace token used in this request does not have the permissions necessary to complete the request. Make sure your app is a member of the conversation it's attempting to post a message to.",
     "org_login_required": "The workspace is undergoing an enterprise migration and will not be available until migration is complete.",
     "ekm_access_denied": "Administrators have suspended the ability to post a message.",
-    "invalid_arguments": "The method was called with invalid arguments.",
+    "not_allowed_token_type": "The token type used in this request is not allowed.",
+    "method_deprecated": "The method has been deprecated.",
+    "deprecated_endpoint": "The endpoint has been deprecated.",
+    "two_factor_setup_required": "Two factor setup is required.",
+    "enterprise_is_restricted": "The method cannot be called from an Enterprise.",
+    "invalid_arguments": "The method was either called with invalid arguments or some detail about the arguments passed are invalid, which is more likely when using complex arguments like blocks or attachments.",
     "invalid_arg_name": "The method was passed an argument whose name falls outside the bounds of accepted or expected values. This includes very long names and names with non-alphanumeric characters other than `_`. If you get this error, it is typically an indication that you have made a _very_ malformed API call.",
+    "invalid_array_arg": "The method was passed an array as an argument. Please only input valid strings.",
     "invalid_charset": "The method was called via a `POST` request, but the `charset` specified in the `Content-Type` header was invalid. Valid charset names are: `utf-8` `iso-8859-1`.",
     "invalid_form_data": "The method was called via a `POST` request with `Content-Type` `application/x-www-form-urlencoded` or `multipart/form-data`, but the form data was either missing or syntactically invalid.",
     "invalid_post_type": "The method was called via a `POST` request, but the specified `Content-Type` was invalid. Valid types are: `application/json` `application/x-www-form-urlencoded` `multipart/form-data` `text/plain`.",
     "missing_post_type": "The method was called via a `POST` request and included a data payload, but the request did not include a `Content-Type` header.",
     "team_added_to_org": "The workspace associated with your request is currently undergoing migration to an Enterprise Organization. Web API and other platform operations will be intermittently unavailable until the transition is complete.",
+    "ratelimited": "The request has been ratelimited. Refer to the `Retry-After` header for when to retry the request.",
+    "accesslimited": "Access to this method is limited on the current network",
     "request_timeout": "The method was called via a `POST` request, but the `POST` data was either missing or truncated.",
-    "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised."
+    "service_unavailable": "The service is temporarily unavailable",
+    "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised.",
+    "internal_error": "The server could not complete your operation(s) without encountering an error, likely due to a transient issue on our end. It's possible some aspect of the operation succeeded before the error was raised."
   }
 }

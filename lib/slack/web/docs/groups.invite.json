@@ -1,47 +1,116 @@
 {
-  "desc": "Invites a user to a private channel.",
+  "desc": "Invites users to a channel.\n\nThis [Conversations API](/docs/conversations-api) method invites 1-1000 users to a public or private channel. The calling user must be a member of the channel.\n\n### Limits for workspace apps\n\nBecause workspace apps can't act on behalf of users, they don't have the power to invite users to conversations, except when they're the owner/creator of the conversation.",
   "args": {
     "token": {
       "required": true,
       "example": "xxxx-xxxxxxxxx-xxxx",
-      "desc": "Authentication token bearing required scopes."
+      "desc": "Authentication token bearing required scopes. Tokens should be passed as an HTTP Authorization header or alternatively, as a POST parameter."
     },
     "channel": {
       "required": true,
-      "example": "G1234567890",
-      "desc": "Private channel to invite user to."
+      "example": "C1234567890",
+      "desc": "The ID of the public or private channel to invite user(s) to."
     },
-    "user": {
+    "users": {
       "required": true,
-      "example": "W1234567890",
-      "desc": "User to invite."
+      "example": "W1234567890,U2345678901,U3456789012",
+      "desc": "A comma separated list of user IDs. Up to 1000 users may be listed."
+    }
+  },
+  "response": {
+    "success": {
+      "ok": true,
+      "channel": {
+        "id": "C012AB3CD",
+        "name": "general",
+        "is_channel": true,
+        "is_group": false,
+        "is_im": false,
+        "created": 1449252889,
+        "creator": "W012A3BCD",
+        "is_archived": false,
+        "is_general": true,
+        "unlinked": 0,
+        "name_normalized": "general",
+        "is_read_only": false,
+        "is_shared": false,
+        "is_ext_shared": false,
+        "is_org_shared": false,
+        "pending_shared": [
+
+        ],
+        "is_pending_ext_shared": false,
+        "is_member": true,
+        "is_private": false,
+        "is_mpim": false,
+        "last_read": "1502126650.228446",
+        "topic": {
+          "value": "For public discussion of generalities",
+          "creator": "W012A3BCD",
+          "last_set": 1449709364
+        },
+        "purpose": {
+          "value": "This part of the workspace is for fun. Make fun here.",
+          "creator": "W012A3BCD",
+          "last_set": 1449709364
+        },
+        "previous_names": [
+          "specifics",
+          "abstractions",
+          "etc"
+        ]
+      }
+    },
+    "error": {
+      "ok": false,
+      "error": "method_not_supported_for_channel_type"
     }
   },
   "errors": {
     "channel_not_found": "Value passed for `channel` was invalid.",
-    "user_not_found": "Value passed for `user` was invalid.",
-    "cant_invite_self": "Authenticated user cannot invite themselves to a group.",
-    "is_archived": "Group has been archived.",
-    "cant_invite": "User cannot be invited to this group.",
-    "ura_max_channels": "URA is already in the maximum number of channels.",
+    "user_not_found": "Value passed for `users` was invalid.",
+    "no_user": "No value was passed for `users`.",
+    "cant_invite_self": "Authenticated user cannot invite themselves to a channel.",
+    "not_in_channel": "Authenticated user is not in the channel.",
+    "already_in_channel": "Invited user is already in the channel.",
+    "is_archived": "Channel has been archived.",
+    "cant_invite": "User cannot be invited to this channel.",
+    "method_not_supported_for_channel_type": "This type of conversation cannot be used with this method.",
+    "missing_scope": "The token used is not granted the specific scope permissions required to complete this request.",
+    "invitee_cant_see_channel": "The Grid multi-workspace channel you are inviting a user to is not shared with any workspaces the user is currently a member of.",
+    "ura_max_channels": "An invited user is a single-channel guest user ('ultra restricted access') that is already in the maximum number of conversations.",
+    "user_is_restricted": "An invited user is a guest user that is restricted from accessing this conversation.",
+    "org_user_not_in_team": "One or more members invited are part of the Enterprise Grid organization but not the specific workspace you're interfacing with.",
+    "no_permission": "The workspace token used in this request does not have the permissions necessary to complete the request. Make sure your app is a member of the conversation it's attempting to post a message to.",
     "not_authed": "No authentication token provided.",
     "invalid_auth": "Some aspect of authentication cannot be validated. Either the provided token is invalid or the request originates from an IP address disallowed from making the request.",
-    "account_inactive": "Authentication token is for a deleted user or workspace.",
-    "token_revoked": "Authentication token is for a deleted user or workspace or the app has been removed.",
-    "no_permission": "The workspace token used in this request does not have the permissions necessary to complete the request. Make sure your app is a member of the conversation it's attempting to post a message to.",
+    "access_denied": "Access to a resource specified in the request is denied.",
+    "account_inactive": "Authentication token is for a deleted user or workspace when using a `bot` token.",
+    "token_revoked": "Authentication token is for a deleted user or workspace or the app has been removed when using a `user` token.",
+    "token_expired": "Authentication token has expired",
     "org_login_required": "The workspace is undergoing an enterprise migration and will not be available until migration is complete.",
     "ekm_access_denied": "Administrators have suspended the ability to post a message.",
-    "missing_scope": "The token used is not granted the specific scope permissions required to complete this request.",
+    "not_allowed_token_type": "The token type used in this request is not allowed.",
+    "method_deprecated": "The method has been deprecated.",
+    "deprecated_endpoint": "The endpoint has been deprecated.",
+    "two_factor_setup_required": "Two factor setup is required.",
+    "enterprise_is_restricted": "The method cannot be called from an Enterprise.",
     "is_bot": "This method cannot be called by a bot user.",
     "user_is_ultra_restricted": "This method cannot be called by a single channel guest.",
-    "invalid_arguments": "The method was called with invalid arguments.",
+    "team_access_not_granted": "The token used is not granted the specific workspace access required to complete this request.",
+    "invalid_arguments": "The method was either called with invalid arguments or some detail about the arguments passed are invalid, which is more likely when using complex arguments like blocks or attachments.",
     "invalid_arg_name": "The method was passed an argument whose name falls outside the bounds of accepted or expected values. This includes very long names and names with non-alphanumeric characters other than `_`. If you get this error, it is typically an indication that you have made a _very_ malformed API call.",
+    "invalid_array_arg": "The method was passed an array as an argument. Please only input valid strings.",
     "invalid_charset": "The method was called via a `POST` request, but the `charset` specified in the `Content-Type` header was invalid. Valid charset names are: `utf-8` `iso-8859-1`.",
     "invalid_form_data": "The method was called via a `POST` request with `Content-Type` `application/x-www-form-urlencoded` or `multipart/form-data`, but the form data was either missing or syntactically invalid.",
     "invalid_post_type": "The method was called via a `POST` request, but the specified `Content-Type` was invalid. Valid types are: `application/json` `application/x-www-form-urlencoded` `multipart/form-data` `text/plain`.",
     "missing_post_type": "The method was called via a `POST` request and included a data payload, but the request did not include a `Content-Type` header.",
     "team_added_to_org": "The workspace associated with your request is currently undergoing migration to an Enterprise Organization. Web API and other platform operations will be intermittently unavailable until the transition is complete.",
+    "ratelimited": "The request has been ratelimited. Refer to the `Retry-After` header for when to retry the request.",
+    "accesslimited": "Access to this method is limited on the current network",
     "request_timeout": "The method was called via a `POST` request, but the `POST` data was either missing or truncated.",
-    "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised."
+    "service_unavailable": "The service is temporarily unavailable",
+    "fatal_error": "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation succeeded before the error was raised.",
+    "internal_error": "The server could not complete your operation(s) without encountering an error, likely due to a transient issue on our end. It's possible some aspect of the operation succeeded before the error was raised."
   }
 }

@@ -11,7 +11,7 @@ defmodule Mix.Tasks.UpdateSlackApi do
     try do
       System.cmd("git", [
         "clone",
-        "https://github.com/aki017/slack-api-docs",
+        "https://github.com/tonnenpinguin/slack-api-docs",
         "#{@dir}/slack-api-docs"
       ])
 
