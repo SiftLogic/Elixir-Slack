@@ -30,8 +30,8 @@ defmodule Slack.Web.DocumentationTest do
 
       module_functions = Slack.Web.Team.__info__(:functions)
 
-      assert {:info, 0} in module_functions
       assert {:info, 1} in module_functions
+      assert {:info, 2} in module_functions
     end
 
     test "accepts versioned endpoints" do
@@ -47,9 +47,9 @@ defmodule Slack.Web.DocumentationTest do
       assert doc.function == :access
 
       module_functions = Slack.Web.Oauth.V2.__info__(:functions)
-
-      assert {:access, 3} in module_functions
-      assert {:access, 4} in module_functions
+      Slack.Web.Oauth.V2.module_info(:functions)
+      assert {:access, 0} in module_functions
+      assert {:access, 1} in module_functions
     end
   end
 end

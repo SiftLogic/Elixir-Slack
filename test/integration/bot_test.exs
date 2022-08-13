@@ -13,7 +13,7 @@ defmodule Slack.Integration.BotTest do
   end
 
   setup_all do
-    Slack.FakeSlack.start_link()
+    {:ok, _id} = Slack.FakeSlack.start_link()
 
     on_exit(fn ->
       Slack.FakeSlack.stop()
