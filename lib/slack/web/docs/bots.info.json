@@ -1,5 +1,5 @@
 {
-  "desc": "Gets information about a bot user.\n\nThis method returns extended information about a [bot user](/bot-users).\n\nPer workspace, bot users have both a user ID (which can be looked up using [`users.info`](/methods/users.info)) and a \"bot ID.\"\n\n`bot_id` fields appear in [`bot_message`](/events/message/bot_message) message event subtypes and in the response of methods like [`conversations.history`](/methods/conversations.history).\n\nUse this method to look up the username and icons for those bot users. Use the `app_id` field to identify whether a bot belongs to your [Slack app](/slack-apps).\n\nLook for a `user_id` when the bot corresponds directly to a bot user account. Some bot-like entities aren't actually \"bot users\" and will not include a `user_id`.",
+  "desc": "Gets information about a bot user.\n\nThis method returns extended information about a [bot user](/bot-users), such as its name and icons.\n\nThe `bot` parameter is required if you want to actually return information about a bot. Use the bot's `bot_id`, which is unique for every workspace the bot is in. The `bot_id` field appears in [`bot_message`](/events/message/bot_message) message events and in the response of methods like [`conversations.history`](/methods/conversations.history).\n\nUse the `app_id` field to identify whether a bot belongs to your [Slack app](/slack-apps).\n\nIf the bot corresponds directly to a bot user account, the bot will also have a `user_id`. You can use the `user_id` to fetch information about a bot user with the [`users.info`](/methods/users.info) method.",
   "args": {
     "token": {
       "required": true,
@@ -21,12 +21,12 @@
     "success": {
       "ok": true,
       "bot": {
-        "id": "B061F7JD2",
+        "id": "B123456",
         "deleted": false,
         "name": "beforebot",
         "updated": 1449272004,
-        "app_id": "A161CLERW",
-        "user_id": "U012ABCDEF",
+        "app_id": "A123456",
+        "user_id": "U123456",
         "icons": {
           "image_36": "https://...",
           "image_48": "https://...",

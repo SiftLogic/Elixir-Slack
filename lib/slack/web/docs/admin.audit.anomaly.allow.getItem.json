@@ -1,29 +1,15 @@
 {
-  "desc": "This API endpoint can be used by any admin to get a channel's retention policy.\n\nThere is no documentation for this method.\n\nSorry! There aren't any sample responses for this endpoint right now.",
+  "desc": "API to allow enterprise grid admins to read the allow list of IP blocks and ASNs from the enterprise configuration.\n\nAPI to allow enterprise grid admins to read the allow list of IP blocks and ASNs from the enterprise configuration.\n\nThe `token` argument is **required** and is a session token.\n\nThe response is a JSON string containing the allow list configurations for the enterprise.\n\n## Building your HTTP request :\n\n```\n{\n\t\t\"token\":\"xoxb-...\"\n\t}\n```\n\n## Example Responses:\n\n```\n{\n\t\t\"ok\":true,\n\t\t\"trusted_cidr\":[\"8.8.8.8/24\",\"8.8.4.4/22\"],\n\t\t\"trusted_asns\":[12345,12344]\n\t}\n```",
   "args": {
-    "token": {
-      "required": true,
-      "example": "xxxx-xxxxxxxxx-xxxx",
-      "desc": "Authentication token bearing required scopes. Tokens should be passed as an HTTP Authorization header or alternatively, as a POST parameter."
-    },
-    "channel_id": {
-      "required": true,
-      "example": "C12345678",
-      "desc": "The channel to get the retention policy for."
-    }
   },
   "response": {
   },
   "errors": {
-    "feature_not_enabled": "The Admin APIs feature is not enabled for this team.",
-    "not_an_admin": "The token provided is not associated with an org admin.",
-    "channel_not_found": "Value given for `channel_id` was invalid.",
-    "channel_type_not_supported": "Value given for `channel_id` was a #general channel.",
-    "retention_override_not_allowed": "The current org retention policy disallows modifying the retention policy of this channel.",
-    "could_not_get_retention": "The retention policy could not be retrieved.",
-    "restricted_action": "A team preference prevents the authenticated user from modifying the retention policy of this channel.",
-    "default_org_wide_channel": "The channel given is a default org-wide channel.",
     "not_authed": "No authentication token provided.",
+    "not_an_enterprise": "The user is not an enterprise admin.",
+    "unsupported_action_describe": "The user specified action is unsupported",
+    "unsupported_action_put": "The user specified action is unsupported",
+    "endpoint_unavailable": "The requested endpoint is currently unavailable.",
     "invalid_auth": "Some aspect of authentication cannot be validated. Either the provided token is invalid or the request originates from an IP address disallowed from making the request.",
     "access_denied": "Access to a resource specified in the request is denied.",
     "account_inactive": "Authentication token is for a deleted user or workspace when using a `bot` token.",

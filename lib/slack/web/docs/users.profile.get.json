@@ -1,5 +1,5 @@
 {
-  "desc": "Retrieve a user's profile information, including their custom status.\n\nUse this method to retrieve a user's profile information.\n\nIf you're frequently calling `users.profile.get` on behalf of a team or user, we recommend caching labels retrieved from [`team.profile.get`](/methods/team.profile.get). Using the `include_labels` parameter will severely rate-limit requests to this method.\n\nThe response contains a `profile` item with an array of key:value pairs.\n\nWe hope you find the `first_name`, `last_name`, `email` attributes self-explanatory.\n\nThe user's custom-set \"current status\" can be found in the `status_text` and `status_emoji` attributes. If the status is set to automatically expire, the `status_expiration` field provides the specific time in seconds since the epoch (UNIX time). See [custom status](/docs/presence#custom_status) for more info. `status_expiration` set to `0` indicates the status does not expire.\n\nThe `image_` keys hold links to the different sizes we support for the user's profile image from 24x24 to 1024x1024 pixels. A link to the image in its original size is stored in `image_original`.\n\nBot users may contain an `always_active` profile field, indicating whether the bot user is active in a way that overrides traditional presence rules. The [presence](/docs/presence#bot_presence) docs tell the whole story.\n\nFor a description of the `fields` key, see the [users.profile.set](/methods/users.profile.set) method.\n\n### Email addresses\n\n<ts-icon class=\"ts_icon_square_warning\"></ts-icon> **Accessing email addresses**  \nThe [`users:read.email`](/scopes/users:read.email) OAuth scope is now required to access the `email` field in [user objects](/types/user) returned by the [`users.list`](/methods/users.list) and [`users.info`](/methods/users.info) web API methods. [`users:read`](/scopes/users:read) is no longer a sufficient scope for this data field. [Learn more](/changelog/2017-04-narrowing-email-access).\n\nApps created after January 4th, 2017 must request _both_ the `users:read` and `users:read.email` [OAuth permission scopes](/docs/oauth-scopes) simultaneously when using the [OAuth app installation flow](/authentication) to enable access to the `email` field of user objects returned by this method.\n\nIf the _Email Display_ setting is unchecked in your Slack Admin settings, `users.profile.get` does not return an `email` value.",
+  "desc": "Retrieve a user's profile information, including their custom status.\n\nUse this method to retrieve a user's profile information.\n\nIf you're frequently calling `users.profile.get` on behalf of a team or user, we recommend caching labels retrieved from [`team.profile.get`](/methods/team.profile.get). Using the `include_labels` parameter will severely rate-limit requests to this method.\n\nThe following fields are the default fields of a user's workspace profile. A user may have additional custom fields, though! Use [`team.profile.get`](/methods/users.profile.get) to view all the user's custom profile fields.\n\n| Field | Type | Description |\n| --- | --- | --- |\n| `avatar_hash` | String | |\n| `display_name` | String | The display name the user has chosen to identify themselves by in their workspace profile. Do not use this field as a unique identifier for a user, as it may change at any time. Instead, use `id` and `team_id` in concert. |\n| `display_name_normalized` | String | The `display_name` field, but with any non-Latin characters filtered out. |\n| `email` | String | A valid email address. It cannot have spaces, and it must have an `@` and a domain. It cannot be in use by another member of the same team. Changing a user's email address will send an email to both the old and new addresses, and also post a slackbot message to the user informing them of the change. This field can only be changed _by admins_ for users on **paid** teams. |\n| `fields` | Object | All the [custom profile fields](https://api.slack.com/methods/users.profile.set#custom_profile) for the user. |\n| `first_name` | String | The user's first name. The name `slackbot` cannot be used. Updating `first_name` will update the first name within `real_name`. |\n| `image_*` | String | These various fields will contain `https` URLs that point to square ratio, web-viewable images (GIFs, JPEGs, or PNGs) that represent different sizes of a user's profile picture. |\n| `last_name` | String | The user's last name. The name `slackbot` cannot be used. Updating `last_name` will update the second name within `real_name`. |\n| `phone` | String | The user's phone number, in any format. |\n| `pronouns` | String | The pronouns the user prefers to be addressed by. |\n| `real_name` | String | The user's first and last name. Updating this field will update `first_name` and `last_name`. If only one name is provided, the value of `last_name` will be cleared. |\n| `real_name_normalized` | String | The `real_name` field, but with any non-Latin characters filtered out. |\n| `skype` | String | A shadow from a bygone era. It will always be an empty string and cannot be set otherwise. |\n| `status_emoji` | String | The displayed emoji that is enabled for the Slack team, such as `:train:`. |\n| `status_expiration` | Integer | the Unix Timestamp of when the status will expire. Providing `0` or omitting this field results in a custom status that will not expire. |\n| `status_text` | String | The displayed text of up to 100 characters. We strongly encourage brevity. See [custom status](/docs/presence#custom_status) for more info. |\n| `team` | String | The ID of the workspace the user is in. |\n| `title` | String | The user's title. |\n\nBot users may contain an `always_active` profile field, indicating whether the bot user is active in a way that [overrides traditional presence rules](/docs/presence#bot_presence).\n\n### Email addresses\n\n<ts-icon class=\"ts_icon_square_warning\"></ts-icon> **Accessing email addresses**  \nThe [`users:read.email`](/scopes/users:read.email) OAuth scope is now required to access the `email` field in [user objects](/types/user) returned by the [`users.list`](/methods/users.list) and [`users.info`](/methods/users.info) web API methods. [`users:read`](/scopes/users:read) is no longer a sufficient scope for this data field. [Learn more](/changelog/2017-04-narrowing-email-access).\n\nIf the _Email Display_ setting is unchecked in your Slack Admin settings, `users.profile.get` does not return an `email` value.",
   "args": {
     "token": {
       "required": true,
@@ -21,23 +21,45 @@
     "success": {
       "ok": true,
       "profile": {
-        "avatar_hash": "ge3b51ca72de",
-        "status_text": "Print is dead",
-        "status_emoji": ":books:",
+        "title": "Head of Coffee Production",
+        "phone": "",
+        "skype": "",
+        "real_name": "John Smith",
+        "real_name_normalized": "John Smith",
+        "display_name": "john",
+        "display_name_normalized": "john",
+        "fields": {
+          "Xf0111111": {
+            "value": "Barista",
+            "alt": ""
+          },
+          "Xf0222222": {
+            "value": "2022-04-11",
+            "alt": ""
+          },
+          "Xf0333333": {
+            "value": "https://example.com",
+            "alt": ""
+          }
+        },
+        "status_text": "Watching cold brew steep",
+        "status_emoji": ":coffee:",
+        "status_emoji_display_info": [
+
+        ],
         "status_expiration": 0,
-        "real_name": "Egon Spengler",
-        "display_name": "spengler",
-        "real_name_normalized": "Egon Spengler",
-        "display_name_normalized": "spengler",
-        "email": "spengler@ghostbusters.example.com",
-        "image_original": "https://.../avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
-        "image_24": "https://.../avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
-        "image_32": "https://.../avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
-        "image_48": "https://.../avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
-        "image_72": "https://.../avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
-        "image_192": "https://.../avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
-        "image_512": "https://.../avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
-        "team": "T012AB3C4"
+        "avatar_hash": "123xyz",
+        "email": "johnsmith@example.com",
+        "huddle_state": "default_unset",
+        "huddle_state_expiration_ts": 0,
+        "first_name": "john",
+        "last_name": "smith",
+        "image_24": "https://.../...-24.png",
+        "image_32": "https://.../...-32.png",
+        "image_48": "https://.../...-48.png",
+        "image_72": "https://.../...-72.png",
+        "image_192": "https://.../....-192png",
+        "image_512": "https://.../...-512.png"
       }
     },
     "error": {

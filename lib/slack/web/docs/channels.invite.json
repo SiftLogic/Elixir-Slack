@@ -1,5 +1,5 @@
 {
-  "desc": "Invites users to a channel.\n\nThis [Conversations API](/docs/conversations-api) method invites 1-1000 users to a public or private channel. The calling user must be a member of the channel.\n\n### Limits for workspace apps\n\nBecause workspace apps can't act on behalf of users, they don't have the power to invite users to conversations, except when they're the owner/creator of the conversation.",
+  "desc": "Invites users to a channel.\n\nThis [Conversations API](/docs/conversations-api) method invites 1-1000 users to a public or private channel. The calling user must be a member of the channel.\n\n### Partially failed calls\n\nWhen some users cannot be successfully invited, only the error response will be returned. The users who can be successfully invited will still be invited, but there will not be a success response noting that.",
   "args": {
     "token": {
       "required": true,
@@ -63,7 +63,19 @@
     },
     "error": {
       "ok": false,
-      "error": "method_not_supported_for_channel_type"
+      "error": "user_not_found",
+      "errors": [
+        {
+          "user": "U111111",
+          "ok": false,
+          "error": "user_not_found"
+        },
+        {
+          "user": "U222222",
+          "ok": false,
+          "error": "cant_invite_self"
+        }
+      ]
     }
   },
   "errors": {

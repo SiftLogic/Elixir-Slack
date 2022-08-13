@@ -1,5 +1,5 @@
 {
-  "desc": "Archives a conversation.\n\nThis method archives a conversation. Not all types of conversations can be archived.\n\n### Limits for workspace apps\n\nBecause workspace apps can't act on behalf of users, they don't have the power to archive conversations, except when they're the owner/creator of the conversation.",
+  "desc": "Archives a conversation.\n\nThis method archives a conversation. Not all types of conversations can be archived.",
   "args": {
     "token": {
       "required": true,
