@@ -2,7 +2,7 @@ defmodule Slack.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/BlakeWilliams/Elixir-Slack"
-  @version "0.23.6"
+  @version "0.23.7"
 
   def project do
     [
